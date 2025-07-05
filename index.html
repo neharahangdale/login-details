@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Camera App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+
+    video, canvas, img {
+      width: 100%;
+      max-width: 600px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: purple;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 300px;
+      margin: 20px auto;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    #output {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      form {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Camera Project</h1>
+<!-- Webcam Preview -->
+    <video id="webcam" autoplay playsinline></video>
+    <br>
+    <button onclick="capture()">Capture Photo</button>
+<!-- Hidden Canvas for Captured Image -->
+    <canvas id="snapshot" style="display: none;"></canvas>
+  </div>
+<!-- User Info Form -->
+  <form id="userForm">
+    <h2>User Information</h2>
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="email" id="email" placeholder="Email Address" required>
+    <button type="submit">Submit</button>
+  </form>
+<!-- Output Display -->
+  <div id="output"></div>
+<script>
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('snapshot');
+    const context = canvas.getContext('2d');
+    let imageDataURL = ''; // to store the captured image
+ // Start webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        video.srcObject = stream;
+      })
+      .catch((err) => {
+        console.error("Camera access error:", err);
+      });
+ // Capture image
+    function capture() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+ // Get image data
+      imageDataURL = canvas.toDataURL('image/png');
+alert("Photo captured! Now fill the form and submit.");
+    }
+ // Handle form submission
+    const form = document.getElementById('userForm');
+    const output = document.getElementById('output');
+form.addEventListener('submit', function(e) {
+      e.preventDefault(); // prevent page reload
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+
+      if (!imageDataURL) {
+        alert("Please capture a photo first.");
+        return;
+      }
+ // Optional: Save to localStorage
+      localStorage.setItem('userPhoto', imageDataURL);
+      localStorage.setItem('userName', name);
+      localStorage.setItem('userEmail', email);
+// Display the info and image
+      output.innerHTML = `
+        <h2>Captured Data:</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <img src="${imageDataURL}" alt="Captured Photo" />
+      `;
+    });
+  </script>
+</body>
+</html>
